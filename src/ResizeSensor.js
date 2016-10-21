@@ -105,7 +105,9 @@
             var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
 
             element.resizeSensor.style.cssText = style;
-            element.resizeSensor.innerHTML = '<span style="' + style + '"><span style="' + styleChild + '"></span></span><span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
+            element.resizeSensor.innerHTML =
+                '<span style="' + style + '"><span style="' + styleChild + '"></span></span>' +
+                '<span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
             element.appendChild(element.resizeSensor);
 
             if (getComputedStyle(element, 'position') == 'static') {
