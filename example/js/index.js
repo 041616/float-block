@@ -1,4 +1,4 @@
-import stickyBlock from '../src/stickyBlock';
+import stickyBlock from '../../src/stickyBlock';
 
 stickyBlock(
     document.getElementById('f01'),

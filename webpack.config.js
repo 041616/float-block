@@ -1,19 +1,19 @@
 module.exports = {
-    entry: './example/index.js',
+    entry: './example/js/index.js',
     output: {
-        path: './example',
-        filename: 'example.index.js'
+        path: './example/build/js',
+        filename: 'index.js'
     },
     module: {
         loaders: [
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
-                loader: 'babel', // 'babel-loader' is also a valid name to reference
+                loader: 'babel',
                 query: {
                     presets: ['es2015']
                 }
             }
-        ]
+        ],
     }
 };

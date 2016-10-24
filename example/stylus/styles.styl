@@ -1,0 +1,96 @@
+@import "reset.styl"
+
+.top
+    margin: 10px 50px 20px
+
+.container
+    display: table
+    width: 100%
+    margin-bottom: 10px
+
+.logo
+    display: table-cell
+    vertical-align: middle
+
+.slogan
+    display: table-cell
+    vertical-align: middle
+    width: 700px
+    color: #333
+    text-align: right
+    text-shadow: 0 0 1px #aaa
+
+.nav
+    display: table
+    width: 100%
+    background-color: #eee
+    box-shadow: 0 1px 5px rgba(0,0,0,0.6)
+    border-radius: 2px
+
+.nav__body
+    display: table-row
+
+.nav__item
+    position: relative
+    display: table-cell
+    padding: 10px
+    vertical-align: middle
+    text-align: center
+    border-radius: 2px
+
+.nav__item:hover
+    background-color: #777
+
+.nav__item:hover .nav__link
+    color: #fff
+
+.nav__link
+    display: block
+    text-decoration: none
+    color: #000
+    font-weight: bold
+    word-break: break-word
+
+.nav__link:after
+    position: absolute
+    left: 0
+    top: 0
+    right: 0
+    bottom: 0
+    content: ''
+
+.main
+    margin: 20px 0
+    padding: 20px 50px
+    box-shadow: 0 1px 6px -2px rgba(0,0,0,0.6) inset
+    background-color: #efefef
+
+.columns
+    margin: -10px
+
+.columns__item
+    display: inline-block
+    width: 50%
+    box-sizing: border-box
+    padding: 10px
+    vertical-align: top
+
+.footer
+    margin: 20px 50px
+
+.copyright
+    text-align: center
+
+.float.float_state_active
+    padding: 10px
+    margin-left: -10px
+    margin-right: -10px
+    background-color: #fff
+    box-shadow: 0 1px 5px rgba(0,0,0,0.6)
+    border-radius: 2px
+
+.mt-20
+    margin-top: 20px
+
+.mb-20
+    margin-bottom: 20px
