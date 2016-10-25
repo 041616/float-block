@@ -52,7 +52,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _stickyBlock2.default)(document.getElementById('f01'), { relative: 'columns', clsActive: 'active' });
+	(0, _stickyBlock2.default)(document.getElementsByClassName('float')[0], { relative: 'columns', clsActive: 'active' });
 	(0, _stickyBlock2.default)(document.getElementById('f02'), { relative: 'columns', clsActive: 'active' });
 
 /***/ },
@@ -72,13 +72,24 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function addEvent(el, nm, cb) {
-	    if (el.attachEvent) {
-	        el.attachEvent('on' + nm, cb);
+	function guid() {
+	    var s4 = function s4() {
+	        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	    };
+	    return 'id-' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+	}
+
+	function setID(node) {
+	    if (!node.id) node.id = guid();
+	}
+
+	function addEvent(node, name, callbak) {
+	    if (node.attachEvent) {
+	        node.attachEvent('on' + name, callbak);
 	    } else {
-	        el.addEventListener(nm, cb);
+	        node.addEventListener(name, callbak);
 	    }
-	};
+	}
 
 	function getRelativeNode(node, classname) {
 	    if (!classname) return null;
@@ -87,39 +98,40 @@
 	        if (nodeList[i].querySelector('#' + node.id)) return nodeList[i];
 	    }
 	    return null;
-	};
+	}
 
-	function getMaxTop(node, cloneNode, relativeNode, rootNode) {
+	function getMaxTop(node, cloneNode, relativeNode) {
 	    var box = node.getBoundingClientRect();
 	    var cloneBox = cloneNode.getBoundingClientRect();
-	    var relativeBox = (relativeNode || rootNode).getBoundingClientRect();
+	    var relativeBox = relativeNode.getBoundingClientRect();
 	    if (relativeBox.bottom - cloneBox.top > box.bottom - box.top) {
 	        return relativeBox.bottom - cloneBox.top - box.bottom + box.top;
 	    }
 	    return 0;
-	};
+	}
 
 	function setHeightStyle(cloneNode, height) {
 	    cloneNode.style.cssText = 'height: ' + height + 'px;';
-	};
+	}
 
 	function setFixedStyle(node, top, left, width) {
-	    node.style.cssText = 'position: fixed; top: -' + top + 'px; left: ' + left + 'px; width: ' + width + 'px;';
-	};
+	    node.style.cssText = 'position: fixed; top: ' + top + 'px; left: ' + left + 'px; width: ' + width + 'px;';
+	}
 
 	function setRelativeStyle(node, top) {
 	    node.style.cssText = 'position: relative; top: ' + top + 'px;';
-	};
+	}
 
 	function stickyBlock(node, _ref) {
 	    var relative = _ref.relative;
-	    var clsActive = _ref.clsActive;
+	    var classActive = _ref.classActive;
 
+	    setID(node);
 	    var rootNode = document.documentElement;
 	    var bodyNode = document.body;
 	    var cloneNode = document.createElement('div');
 	    var className = node.className || '';
-	    var classActive = clsActive ? ('className ' + clsActive).trim() : className;
+	    var classNameActive = classActive ? (className + ' ' + classActive).trim() : className;
 	    var relativeNode = getRelativeNode(node, relative);
 	    var list = [node, cloneNode, rootNode];
 	    if (relativeNode) list.push(relativeNode);
@@ -130,7 +142,7 @@
 
 	    var onScroll = function onScroll() {
 	        var currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
-	        var maxTop = getMaxTop(node, cloneNode, relativeNode, rootNode);
+	        var maxTop = getMaxTop(node, cloneNode, relativeNode || rootNode);
 	        var nodeBox = node.getBoundingClientRect();
 	        var nodeHeight = nodeBox.bottom - nodeBox.top;
 	        var windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
@@ -143,12 +155,12 @@
 	            node.className = className;
 	            setHeightStyle(cloneNode, 0);
 	        } else if (nodeHeight > windowHeight) {
-	            node.className = classActive;
+	            node.className = classNameActive;
 	            if (currScrollTop >= lastScrollTop) {
 	                // downscroll
 	                if (nodeBox.top <= 0 && absNodeTop >= nodeHeight - windowHeight && absCloneTop < maxTop + nodeHeight - windowHeight) {
 	                    setHeightStyle(cloneNode, nodeHeight);
-	                    setFixedStyle(node, nodeHeight - windowHeight, cloneBox.left, cloneBox.right - cloneBox.left);
+	                    setFixedStyle(node, windowHeight - nodeHeight, cloneBox.left, cloneBox.right - cloneBox.left);
 	                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight) {
 	                    setHeightStyle(cloneNode, 0);
 	                    setRelativeStyle(node, maxTop);
@@ -167,7 +179,7 @@
 	                }
 	            }
 	        } else {
-	            node.className = classActive;
+	            node.className = classNameActive;
 	            if (absCloneTop < maxTop) {
 	                setHeightStyle(cloneNode, nodeHeight);
 	                setFixedStyle(node, 0, cloneBox.left, cloneBox.right - cloneBox.left);
