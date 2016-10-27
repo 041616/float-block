@@ -57,8 +57,10 @@ function setRelativeStyle(node, top) {
 }
 
 
-export default function stickyBlock(node, { relative, classActive }) {
+export default function stickyBlock(node, { relative, classActive, top, bottom }) {
     setID(node);
+    const customTop = top || 0;
+    const customBottom = bottom || 0;
     const rootNode = document.documentElement;
     const bodyNode = document.body;
     const cloneNode = document.createElement('div');
@@ -73,7 +75,6 @@ export default function stickyBlock(node, { relative, classActive }) {
     node.parentNode.insertBefore(cloneNode, node);
 
     const onScroll = () => {
-        const currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
         const maxTop = getMaxTop(node, cloneNode, relativeNode || rootNode);
         const nodeBox = node.getBoundingClientRect();
         const nodeHeight = nodeBox.bottom - nodeBox.top;
@@ -82,48 +83,49 @@ export default function stickyBlock(node, { relative, classActive }) {
         const absCloneTop = Math.abs(cloneBox.top);
         const absNodeTop = Math.abs(nodeBox.top);
 
-        if (cloneBox.top >= 0 || !maxTop) {
+        if (cloneBox.top >= customTop || !maxTop) {
             node.removeAttribute('style');
             node.className = className;
             setHeightStyle(cloneNode, 0);
         } else if (nodeHeight > windowHeight) {
             node.className = classNameActive;
+            const currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
             if (currScrollTop >= lastScrollTop) {
                 // downscroll
-                if (nodeBox.top <= 0 &&
-                    absNodeTop >= nodeHeight - windowHeight &&
-                    absCloneTop < maxTop + nodeHeight - windowHeight
+                if (nodeBox.top <= customTop &&
+                    absNodeTop >= nodeHeight - windowHeight + customBottom &&
+                    absCloneTop < maxTop + nodeHeight - windowHeight - customBottom
                 ) {
                     setHeightStyle(cloneNode, nodeHeight);
-                    setFixedStyle(node, windowHeight - nodeHeight, cloneBox.left, cloneBox.right - cloneBox.left);
-                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight) {
+                    setFixedStyle(node, windowHeight - nodeHeight - customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
+                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom) {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, maxTop);
+                    setRelativeStyle(node, maxTop - customBottom);
                 } else {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, absCloneTop - absNodeTop);
+                    setRelativeStyle(node, Math.abs(cloneBox.top - nodeBox.top));
                 }
             } else {
                 // upscroll
-                if (nodeBox.top < 0) {
+                if (nodeBox.top < customTop) {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, absCloneTop - absNodeTop);
-                } else if (absCloneTop < maxTop + nodeHeight - windowHeight) {
+                    setRelativeStyle(node, Math.abs(cloneBox.top - nodeBox.top));
+                } else if (absCloneTop < maxTop + nodeHeight - windowHeight - customTop) {
                     setHeightStyle(cloneNode, nodeHeight);
-                    setFixedStyle(node, 0, cloneBox.left, cloneBox.right - cloneBox.left);
+                    setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
                 }
             }
+            lastScrollTop = currScrollTop;
         } else {
             node.className = classNameActive;
-            if (absCloneTop < maxTop) {
+            if (absCloneTop < maxTop - customTop - customBottom) {
                 setHeightStyle(cloneNode, nodeHeight);
-                setFixedStyle(node, 0, cloneBox.left, cloneBox.right - cloneBox.left)
+                setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left)
             } else {
-                setRelativeStyle(node, maxTop);
                 setHeightStyle(cloneNode, 0);
+                setRelativeStyle(node, maxTop - customBottom);
             }
         }
-        lastScrollTop = currScrollTop;
     };
 
     addEvent(window, 'scroll', onScroll);
