@@ -13,6 +13,7 @@
     }
 }(this, function () {
     var TIMEOUT_DELAY = 20;
+    var TAGNAMES = ['HTML', 'BODY'];
     // Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
     // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
     // would generate too many unnecessary events.
@@ -110,7 +111,8 @@
                 '<span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
             element.appendChild(element.resizeSensor);
 
-            if (getComputedStyle(element, 'position') == 'static') {
+
+            if (TAGNAMES.indexOf(element.tagName) < 0 && getComputedStyle(element, 'position') == 'static') {
                 element.style.position = 'relative';
             }
 
