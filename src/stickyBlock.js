@@ -1,4 +1,4 @@
-import ResizeSensor from './ResizeSensor.js';
+import resizeSensor from './ResizeSensor.js';
 
 
 function guid() {
@@ -57,18 +57,18 @@ function setRelativeStyle(node, top) {
 }
 
 
-export default function stickyBlock(node, { relative, classActive, top, bottom }) {
+export default function stickyBlock(node, opts) {
     setID(node);
-    const customTop = top || 0;
-    const customBottom = bottom || 0;
+    opts = opts || {};
+    const customTop = opts.top || 0;
+    const customBottom = opts.bottom || 0;
+    const className = node.className || '';
+    const classNameActive = opts.classActive ? `${className} ${opts.classActive}`.trim() : className;
+    const relativeNode = getRelativeNode(node, opts.relative);
     const rootNode = document.documentElement;
     const bodyNode = document.body;
     const cloneNode = document.createElement('div');
-    const className = node.className || '';
-    const classNameActive = classActive ? `${className} ${classActive}`.trim() : className;
-    const relativeNode = getRelativeNode(node, relative);
-    const list = [node, cloneNode, rootNode];
-    if (relativeNode) list.push(relativeNode);
+    const list = relativeNode ? [node, cloneNode, rootNode, relativeNode] : [node, cloneNode, rootNode];
     let lastScrollTop = 0;
 
     setHeightStyle(cloneNode, 0);
@@ -79,7 +79,7 @@ export default function stickyBlock(node, { relative, classActive, top, bottom }
         const nodeBox = node.getBoundingClientRect();
         const nodeHeight = nodeBox.bottom - nodeBox.top;
         const windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
-        let cloneBox = cloneNode.getBoundingClientRect();
+        const cloneBox = cloneNode.getBoundingClientRect();
         const absCloneTop = Math.abs(cloneBox.top);
         const absNodeTop = Math.abs(nodeBox.top);
 
@@ -97,7 +97,10 @@ export default function stickyBlock(node, { relative, classActive, top, bottom }
                     absCloneTop < maxTop + nodeHeight - windowHeight - customBottom
                 ) {
                     setHeightStyle(cloneNode, nodeHeight);
-                    setFixedStyle(node, windowHeight - nodeHeight - customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
+                    setFixedStyle(
+                        node, windowHeight - nodeHeight - customBottom,
+                        cloneBox.left, cloneBox.right - cloneBox.left
+                    );
                 } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom) {
                     setHeightStyle(cloneNode, 0);
                     setRelativeStyle(node, maxTop - customBottom);
@@ -120,7 +123,7 @@ export default function stickyBlock(node, { relative, classActive, top, bottom }
             node.className = classNameActive;
             if (absCloneTop < maxTop - customTop - customBottom) {
                 setHeightStyle(cloneNode, nodeHeight);
-                setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left)
+                setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
             } else {
                 setHeightStyle(cloneNode, 0);
                 setRelativeStyle(node, maxTop - customBottom);
@@ -129,5 +132,5 @@ export default function stickyBlock(node, { relative, classActive, top, bottom }
     };
 
     addEvent(window, 'scroll', onScroll);
-    ResizeSensor(list, onScroll);
+    resizeSensor(list, onScroll);
 }

@@ -52,7 +52,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _stickyBlock2.default)(document.getElementById('f01'), { relative: 'columns', classActive: 'active', top: 20, bottom: 10 });
+	(0, _stickyBlock2.default)(document.getElementById('f01'));
 	(0, _stickyBlock2.default)(document.getElementById('f02'), { relative: 'columns', classActive: 'active', top: 20, bottom: 10 });
 
 /***/ },
@@ -122,23 +122,18 @@
 	    node.style.cssText = 'position: relative; top: ' + top + 'px;';
 	}
 
-	function stickyBlock(node, _ref) {
-	    var relative = _ref.relative;
-	    var classActive = _ref.classActive;
-	    var top = _ref.top;
-	    var bottom = _ref.bottom;
-
+	function stickyBlock(node, opts) {
 	    setID(node);
-	    var customTop = top || 0;
-	    var customBottom = bottom || 0;
+	    opts = opts || {};
+	    var customTop = opts.top || 0;
+	    var customBottom = opts.bottom || 0;
+	    var className = node.className || '';
+	    var classNameActive = opts.classActive ? (className + ' ' + opts.classActive).trim() : className;
+	    var relativeNode = getRelativeNode(node, opts.relative);
 	    var rootNode = document.documentElement;
 	    var bodyNode = document.body;
 	    var cloneNode = document.createElement('div');
-	    var className = node.className || '';
-	    var classNameActive = classActive ? (className + ' ' + classActive).trim() : className;
-	    var relativeNode = getRelativeNode(node, relative);
-	    var list = [node, cloneNode, rootNode];
-	    if (relativeNode) list.push(relativeNode);
+	    var list = relativeNode ? [node, cloneNode, rootNode, relativeNode] : [node, cloneNode, rootNode];
 	    var lastScrollTop = 0;
 
 	    setHeightStyle(cloneNode, 0);
