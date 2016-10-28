@@ -52,8 +52,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _stickyBlock2.default)(document.getElementById('f01'));
-	(0, _stickyBlock2.default)(document.getElementById('f02'), { relative: 'columns', classActive: 'active', top: 20, bottom: 10 });
+	(0, _stickyBlock2.default)(document.getElementById('float-block-01'));
+	// stickyBlock(
+	//     document.getElementById('f02'),
+	//     { relative: 'columns', classActive: 'active', top: 20, bottom: 10 }
+	// );
 
 /***/ },
 /* 1 */
@@ -71,6 +74,16 @@
 	var _ResizeSensor2 = _interopRequireDefault(_ResizeSensor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function getComputedStyle(element, prop) {
+	    if (element.currentStyle) {
+	        return element.currentStyle[prop];
+	    }
+	    if (window.getComputedStyle) {
+	        return window.getComputedStyle(element, null).getPropertyValue(prop);
+	    }
+	    return element.style[prop];
+	}
 
 	function guid() {
 	    var s4 = function s4() {
@@ -123,6 +136,7 @@
 	}
 
 	function stickyBlock(node, opts) {
+	    console.log(getComputedStyle(node, 'margin-bottom'));
 	    setID(node);
 	    opts = opts || {};
 	    var customTop = opts.top || 0;
