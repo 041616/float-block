@@ -48,7 +48,7 @@ function setHeightStyle(cloneNode, height) {
 
 
 function setFixedStyle(node, top, left, width) {
-    node.style.cssText = `position: fixed; top: ${top}px; left: ${left}px; width: ${width}px;`;
+    node.style.cssText = `position: fixed; top: ${top}px; left: ${left}px; width: ${width}px; box-sizing: border-box;`;
 }
 
 

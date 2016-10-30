@@ -5,7 +5,8 @@
   "main": "src/stickyBlock.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "stylus": "stylus -c < example/stylus/styles.styl > example/build/css/styles.css -I example/stylus/"
+    "stylus": "stylus -c --print < example/stylus/styles.styl > example/build/css/styles.css -I example/stylus/",
+    "webpack": "webpack"
   },
   "author": "a.mostovenko, o.tarasov",
   "license": "ISC",

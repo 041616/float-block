@@ -18,11 +18,24 @@
         width: 20%
 
 .list__item
+    position: relative
     display: inline-block
     box-sizing: border-box
-    padding: (_$vertical-indent / 2)
+    border: (_$vertical-indent / 2) solid transparent
     vertical-align: top
+    &:before
+        display: block
+        width: 0
+        height: 0
+        padding: 50% 0
+        content: ''
 
 .list__img
-    vertical-align: top
-    max-width 100%
+    position: absolute
+    left: 0
+    top: 0
+    right: 0
+    bottom: 0
+    margin: auto
+    max-width: 100%
+    max-height: 100%
