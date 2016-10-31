@@ -52,7 +52,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _stickyBlock2.default)(document.getElementById('float-block-01'));
+	(0, _stickyBlock2.default)(document.getElementById('float-block'), { relative: 'container' });
 
 /***/ },
 /* 1 */
@@ -156,13 +156,16 @@
 	            var currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
 	            if (currScrollTop >= lastScrollTop) {
 	                // downscroll
-	                if (nodeBox.top <= customTop && absNodeTop >= nodeHeight - windowHeight + customBottom && absCloneTop < maxTop + nodeHeight - windowHeight - customBottom) {
+	                if (nodeBox.top <= customTop && absNodeTop >= nodeHeight - windowHeight && absCloneTop < maxTop + nodeHeight - windowHeight - customBottom) {
+	                    console.log('1');
 	                    setHeightStyle(cloneNode, nodeHeight);
 	                    setFixedStyle(node, windowHeight - nodeHeight - customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
 	                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom) {
+	                    console.log('2');
 	                    setHeightStyle(cloneNode, 0);
-	                    setRelativeStyle(node, maxTop - customBottom);
+	                    setRelativeStyle(node, maxTop);
 	                } else {
+	                    console.log('3');
 	                    setHeightStyle(cloneNode, 0);
 	                    setRelativeStyle(node, Math.abs(cloneBox.top - nodeBox.top));
 	                }

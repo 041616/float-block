@@ -25,9 +25,17 @@
     vertical-align: top
     &:before
         display: block
-        width: 0
         height: 0
         padding: 50% 0
+        content: ''
+        background-color: _$background-color
+    &:after
+        position: absolute
+        left: 0
+        top: 0
+        right: 0
+        bottom: 0
+        border: 1px solid _$border-color
         content: ''
 
 .list__img
