@@ -47,12 +47,17 @@ function setHeightStyle(cloneNode, height) {
 }
 
 
-function setFixedStyle(node, top, left, width) {
+function setFixedTopStyle(node, top, left, width) {
     node.style.cssText = `position: fixed; top: ${top}px; left: ${left}px; width: ${width}px; box-sizing: border-box;`;
 }
 
 
-function setRelativeStyle(node, top) {
+function setFixedBottomStyle(node, bottom, left, width) {
+    node.style.cssText = `position: fixed; bottom: ${bottom}px; left: ${left}px; width: ${width}px; box-sizing: border-box;`;
+}
+
+
+function setRelativeTopStyle(node, top) {
     node.style.cssText = `position: relative; top: ${top}px;`;
 }
 
@@ -62,6 +67,7 @@ export default function stickyBlock(node, opts) {
     opts = opts || {};
     const customTop = opts.top || 0;
     const customBottom = opts.bottom || 0;
+    const customIndent = opts.indent || 0;
     const className = node.className || '';
     const classNameActive = opts.classActive ? `${className} ${opts.classActive}`.trim() : className;
     const relativeNode = getRelativeNode(node, opts.relative);
@@ -94,39 +100,36 @@ export default function stickyBlock(node, opts) {
                 // downscroll
                 if (nodeBox.top <= customTop &&
                     absNodeTop >= nodeHeight - windowHeight + customBottom &&
-                    absCloneTop < maxTop + nodeHeight - windowHeight - customBottom
+                    absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent
                 ) {
                     setHeightStyle(cloneNode, nodeHeight);
-                    setFixedStyle(
-                        node, windowHeight - nodeHeight - customBottom,
-                        cloneBox.left, cloneBox.right - cloneBox.left
-                    );
-                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom) {
+                    setFixedBottomStyle(node, customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
+                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, maxTop - customBottom);
+                    setRelativeTopStyle(node, maxTop - customIndent);
                 } else {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, Math.abs(cloneBox.top - nodeBox.top));
+                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top));
                 }
             } else {
                 // upscroll
                 if (nodeBox.top < customTop) {
                     setHeightStyle(cloneNode, 0);
-                    setRelativeStyle(node, Math.abs(cloneBox.top - nodeBox.top));
+                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top));
                 } else if (absCloneTop < maxTop + nodeHeight - windowHeight - customTop) {
                     setHeightStyle(cloneNode, nodeHeight);
-                    setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
+                    setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
                 }
             }
             lastScrollTop = currScrollTop;
         } else {
             node.className = classNameActive;
-            if (absCloneTop < maxTop - customTop - customBottom) {
+            if (absCloneTop < maxTop - customTop - customIndent) {
                 setHeightStyle(cloneNode, nodeHeight);
-                setFixedStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
+                setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
             } else {
                 setHeightStyle(cloneNode, 0);
-                setRelativeStyle(node, maxTop - customBottom);
+                setRelativeTopStyle(node, maxTop - customIndent);
             }
         }
     };
