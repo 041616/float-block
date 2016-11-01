@@ -195,6 +195,7 @@
 	    };
 
 	    addEvent(window, 'scroll', onScroll);
+	    addEvent(window, 'resize', onScroll);
 	    (0, _ResizeSensor2.default)(list, onScroll);
 	}
 

@@ -135,5 +135,6 @@ export default function stickyBlock(node, opts) {
     };
 
     addEvent(window, 'scroll', onScroll);
+    addEvent(window, 'resize', onScroll);
     resizeSensor(list, onScroll);
 }
