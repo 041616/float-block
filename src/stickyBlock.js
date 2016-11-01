@@ -12,11 +12,11 @@ function setID(node) {
 }
 
 
-function addEvent(node, name, callbak) {
+function addEvent(node, name, callback) {
     if (node.attachEvent) {
-        node.attachEvent(`on${name}`, callbak);
+        node.attachEvent(`on${name}`, callback);
     } else {
-        node.addEventListener(name, callbak);
+        node.addEventListener(name, callback);
     }
 }
 
