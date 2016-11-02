@@ -52,7 +52,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _stickyBlock2.default)(document.getElementById('float-block'), { relative: 'main', top: 20, bottom: 20 });
+	(0, _stickyBlock2.default)(document.getElementById('float-block'), { relative: 'main', top: 20, bottom: 20, indent: 20 });
 
 /***/ },
 /* 1 */
