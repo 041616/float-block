@@ -1,5 +1,6 @@
 module.exports = {
     entry: {
+        'dist/ResizeSensor': ['./src/ResizeSensor.js'],
         'dist/stickyBlock': ['./src/stickyBlock.js'],
         'example/build/js/demo01': './example/js/demo01.js',
         'example/build/js/demo02': './example/js/demo02.js',

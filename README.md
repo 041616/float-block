@@ -1,14 +1,19 @@
 # float-block
 
-It makes block stick to top of the page. To use it, block must corresponds CSS rules:
- - `position: static` 
- - `margin: 0`
- - `display: block`
- - `width: auto`
+It makes block stick to top of the page.
+
+To use it, block must corresponds CSS rules:
+
+ - `position: static;` 
+ - `margin: 0;`
+ - `display: block;`
+ - `width: auto;`
+ - `float: none;`
 
 ##Options
 
 Options list:
+
 <table>
     <tr>
       <th>Name</th>
@@ -49,9 +54,11 @@ Options list:
 </table>
 
 ##Browser Support
+
 All modern browsers and IE9+
 
 ##Examples
+
 [Demo1](https://041616.github.io/float-block/example/demo01.html) - without any parameters.
 
 [Demo2](https://041616.github.io/float-block/example/demo02.html) - `classActive` parameter is setted.
