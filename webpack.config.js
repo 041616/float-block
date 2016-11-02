@@ -1,13 +1,14 @@
 module.exports = {
     entry: {
-        demo01: './example/js/demo01.js',
-        demo02: './example/js/demo02.js',
-        demo03: './example/js/demo03.js',
-        demo04: './example/js/demo04.js',
-        demo05: './example/js/demo05.js'
+        'dist/stickyBlock': ['./src/stickyBlock.js'],
+        'example/build/js/demo01': './example/js/demo01.js',
+        'example/build/js/demo02': './example/js/demo02.js',
+        'example/build/js/demo03': './example/js/demo03.js',
+        'example/build/js/demo04': './example/js/demo04.js',
+        'example/build/js/demo05': './example/js/demo05.js'
     },
     output: {
-        path: './example/build/js',
+        path: './',
         filename: "[name].js",
     },
     module: {

@@ -1,0 +1,6 @@
+.idea/
+example/
+node_modules
+npm-debug.log
+webpack.config.js
+.gitignore
