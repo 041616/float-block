@@ -165,9 +165,11 @@
             attachResizeEvent(elem, callback);
         });
 
-        this.detach = function(ev) {
-            ResizeSensor.detach(element, ev);
-        };
+        if (this) {
+            this.detach = function(ev) {
+                ResizeSensor.detach(element, ev);
+            };
+        }
     };
 
     ResizeSensor.detach = function(element, ev) {
