@@ -1,16 +1,12 @@
 module.exports = {
     entry: {
-        'dist/ResizeSensor': ['./src/ResizeSensor.js'],
-        'dist/stickyBlock': ['./src/stickyBlock.js'],
-        'example/build/js/demo01': './example/js/demo01.js',
-        'example/build/js/demo02': './example/js/demo02.js',
-        'example/build/js/demo03': './example/js/demo03.js',
-        'example/build/js/demo04': './example/js/demo04.js',
-        'example/build/js/demo05': './example/js/demo05.js'
+        'stickyBlock': './src/stickyBlock.js'
     },
     output: {
-        path: './',
+        path: './dist/',
         filename: "[name].js",
+        libraryTarget: 'umd',
+        library: 'stickyBlock',
     },
     module: {
         loaders: [

@@ -62,7 +62,7 @@ function setRelativeTopStyle(node, top) {
 }
 
 
-export default function stickyBlock(node, opts) {
+function stickyBlock(node, opts) {
     setID(node);
     opts = opts || {};
     const customTop = opts.top || 0;
@@ -138,3 +138,6 @@ export default function stickyBlock(node, opts) {
     addEvent(window, 'resize', onScroll);
     resizeSensor(list, onScroll);
 }
+
+
+module.exports = stickyBlock;
