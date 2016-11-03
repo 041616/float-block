@@ -1,6 +1,6 @@
 {
   "name": "float-block",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "It makes block stick to top of the page.",
   "main": "dist/stickyBlock.js",
   "scripts": {
