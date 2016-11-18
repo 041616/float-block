@@ -128,14 +128,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var rootNode = document.documentElement;
 	    var bodyNode = document.body;
 	    var cloneNode = document.createElement('div');
-	    var list = relativeNode ? [node, cloneNode, rootNode, relativeNode] : [node, cloneNode, rootNode];
+	    var list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
 	    var lastScrollTop = 0;
 
 	    setHeightStyle(cloneNode, 0);
 	    node.parentNode.insertBefore(cloneNode, node);
 
 	    var onScroll = function onScroll() {
-	        var maxTop = getMaxTop(node, cloneNode, relativeNode || rootNode);
+	        var maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
 	        var nodeBox = node.getBoundingClientRect();
 	        var nodeHeight = nodeBox.bottom - nodeBox.top;
 	        var windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
@@ -215,7 +215,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	})(undefined, function () {
 	    var TIMEOUT_DELAY = 20;
-	    var TAGNAMES = ['HTML', 'BODY'];
 	    // Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
 	    // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
 	    // would generate too many unnecessary events.
@@ -306,7 +305,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            element.resizeSensor.innerHTML = '<span style="' + style + '"><span style="' + styleChild + '"></span></span>' + '<span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
 	            element.appendChild(element.resizeSensor);
 
-	            if (TAGNAMES.indexOf(element.tagName) < 0 && getComputedStyle(element, 'position') == 'static') {
+	            if (getComputedStyle(element, 'position') == 'static') {
 	                element.style.position = 'relative';
 	            }
 

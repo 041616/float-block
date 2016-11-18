@@ -74,14 +74,14 @@ function stickyBlock(node, opts) {
     const rootNode = document.documentElement;
     const bodyNode = document.body;
     const cloneNode = document.createElement('div');
-    const list = relativeNode ? [node, cloneNode, rootNode, relativeNode] : [node, cloneNode, rootNode];
+    const list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
     let lastScrollTop = 0;
 
     setHeightStyle(cloneNode, 0);
     node.parentNode.insertBefore(cloneNode, node);
 
     const onScroll = () => {
-        const maxTop = getMaxTop(node, cloneNode, relativeNode || rootNode);
+        const maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
         const nodeBox = node.getBoundingClientRect();
         const nodeHeight = nodeBox.bottom - nodeBox.top;
         const windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
