@@ -75,12 +75,12 @@ function stickyBlock(node, opts) {
     const bodyNode = document.body;
     const cloneNode = document.createElement('div');
     const list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
-    let lastScrollTop = 0;
+    let lastCloneTop = cloneNode.getBoundingClientRect().top;
 
     setHeightStyle(cloneNode, 0);
     node.parentNode.insertBefore(cloneNode, node);
 
-    const onScroll = () => {
+    const setPosition = () => {
         const maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
         const nodeBox = node.getBoundingClientRect();
         const nodeHeight = nodeBox.bottom - nodeBox.top;
@@ -95,8 +95,7 @@ function stickyBlock(node, opts) {
             setHeightStyle(cloneNode, 0);
         } else if (nodeHeight > windowHeight) {
             node.className = classNameActive;
-            const currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
-            if (currScrollTop >= lastScrollTop) {
+            if (cloneBox.top <= lastCloneTop) {
                 // downscroll
                 if (nodeBox.top <= customTop &&
                     absNodeTop >= nodeHeight - windowHeight + customBottom &&
@@ -121,7 +120,7 @@ function stickyBlock(node, opts) {
                     setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
                 }
             }
-            lastScrollTop = currScrollTop;
+            lastCloneTop = cloneBox.top;
         } else {
             node.className = classNameActive;
             if (absCloneTop < maxTop - customTop - customIndent) {
@@ -134,9 +133,9 @@ function stickyBlock(node, opts) {
         }
     };
 
-    addEvent(window, 'scroll', onScroll);
-    addEvent(window, 'resize', onScroll);
-    resizeSensor(list, onScroll);
+    addEvent(window, 'scroll', setPosition);
+    addEvent(window, 'resize', setPosition);
+    resizeSensor(list, setPosition);
 }
 
 

@@ -129,12 +129,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var bodyNode = document.body;
 	    var cloneNode = document.createElement('div');
 	    var list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
-	    var lastScrollTop = 0;
+	    var lastCloneTop = cloneNode.getBoundingClientRect().top;
 
 	    setHeightStyle(cloneNode, 0);
 	    node.parentNode.insertBefore(cloneNode, node);
 
-	    var onScroll = function onScroll() {
+	    var setPosition = function setPosition() {
 	        var maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
 	        var nodeBox = node.getBoundingClientRect();
 	        var nodeHeight = nodeBox.bottom - nodeBox.top;
@@ -149,8 +149,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            setHeightStyle(cloneNode, 0);
 	        } else if (nodeHeight > windowHeight) {
 	            node.className = classNameActive;
-	            var currScrollTop = window.pageYOffset || rootNode.scrollTop || bodyNode.scrollTop;
-	            if (currScrollTop >= lastScrollTop) {
+	            if (cloneBox.top <= lastCloneTop) {
 	                // downscroll
 	                if (nodeBox.top <= customTop && absNodeTop >= nodeHeight - windowHeight + customBottom && absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
 	                    setHeightStyle(cloneNode, nodeHeight);
@@ -172,7 +171,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
 	                }
 	            }
-	            lastScrollTop = currScrollTop;
+	            lastCloneTop = cloneBox.top;
 	        } else {
 	            node.className = classNameActive;
 	            if (absCloneTop < maxTop - customTop - customIndent) {
@@ -185,9 +184,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 
-	    addEvent(window, 'scroll', onScroll);
-	    addEvent(window, 'resize', onScroll);
-	    (0, _ResizeSensor2.default)(list, onScroll);
+	    addEvent(window, 'scroll', setPosition);
+	    addEvent(window, 'resize', setPosition);
+	    (0, _ResizeSensor2.default)(list, setPosition);
 	}
 
 	module.exports = stickyBlock;
