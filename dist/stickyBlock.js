@@ -60,6 +60,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ResizeSensor2 = _interopRequireDefault(_ResizeSensor);
 
+	var _GetCurrentStyle = __webpack_require__(2);
+
+	var _GetCurrentStyle2 = _interopRequireDefault(_GetCurrentStyle);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function guid() {
@@ -90,13 +94,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return null;
 	}
 
-	function getMaxTop(node, cloneNode, relativeNode) {
+	function getMaxTop(node, cloneNode, relativeNode, paddingBottom, borderBottom) {
 	    var box = node.getBoundingClientRect();
 	    var cloneBox = cloneNode.getBoundingClientRect();
 	    var relativeBox = relativeNode.getBoundingClientRect();
-	    if (relativeBox.bottom - cloneBox.top > box.bottom - box.top) {
-	        return relativeBox.bottom - cloneBox.top - box.bottom + box.top;
-	    }
+	    if (relativeBox.bottom - cloneBox.top > box.bottom - box.top) return relativeBox.bottom - cloneBox.top - box.bottom + box.top - borderBottom - paddingBottom;
 	    return 0;
 	}
 
@@ -113,7 +115,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function setRelativeTopStyle(node, top) {
-	    node.style.cssText = 'position: relative; top: ' + top + 'px;';
+	    if (top > 0) node.style.cssText = 'position: relative; top: ' + top + 'px;';
 	}
 
 	function stickyBlock(node, opts) {
@@ -130,18 +132,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var cloneNode = document.createElement('div');
 	    var list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
 	    var lastCloneTop = cloneNode.getBoundingClientRect().top;
+	    var windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
+	    var relativePaddingBottom = parseFloat((0, _GetCurrentStyle2.default)(relativeNode || bodyNode, 'padding-bottom')) || 0;
+	    var relativeBorderBottom = parseFloat((0, _GetCurrentStyle2.default)(relativeNode || bodyNode, 'border-bottom-width')) || 0;
+	    var maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode, relativePaddingBottom, relativeBorderBottom);
 
 	    setHeightStyle(cloneNode, 0);
 	    node.parentNode.insertBefore(cloneNode, node);
 
 	    var setPosition = function setPosition() {
-	        var maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
 	        var nodeBox = node.getBoundingClientRect();
 	        var nodeHeight = nodeBox.bottom - nodeBox.top;
-	        var windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
 	        var cloneBox = cloneNode.getBoundingClientRect();
 	        var absCloneTop = Math.abs(cloneBox.top);
-	        var absNodeTop = Math.abs(nodeBox.top);
 
 	        if (cloneBox.top >= customTop || !maxTop) {
 	            node.removeAttribute('style');
@@ -151,7 +154,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.className = classNameActive;
 	            if (cloneBox.top <= lastCloneTop) {
 	                // downscroll
-	                if (nodeBox.top <= customTop && absNodeTop >= nodeHeight - windowHeight + customBottom && absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
+	                if (nodeBox.top <= customTop && Math.abs(nodeBox.top) >= nodeHeight - windowHeight + customBottom && absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
 	                    setHeightStyle(cloneNode, nodeHeight);
 	                    setFixedBottomStyle(node, customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
 	                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
@@ -185,8 +188,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    addEvent(window, 'scroll', setPosition);
-	    addEvent(window, 'resize', setPosition);
-	    (0, _ResizeSensor2.default)(list, setPosition);
+	    addEvent(window, 'resize', function () {
+	        windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
+	        setPosition();
+	    });
+	    (0, _ResizeSensor2.default)(list, function () {
+	        relativePaddingBottom = parseFloat((0, _GetCurrentStyle2.default)(relativeNode || bodyNode, 'padding-bottom')) || 0;
+	        relativeBorderBottom = parseFloat((0, _GetCurrentStyle2.default)(relativeNode || bodyNode, 'border-bottom-width')) || 0;
+	        maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode, relativePaddingBottom, relativeBorderBottom);
+	        setPosition();
+	    });
 	}
 
 	module.exports = stickyBlock;
@@ -198,6 +209,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var _GetCurrentStyle = __webpack_require__(2);
+
+	var _GetCurrentStyle2 = _interopRequireDefault(_GetCurrentStyle);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	/**
 	 * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
@@ -214,6 +231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	})(undefined, function () {
 	    var TIMEOUT_DELAY = 20;
+	    var SENSOR_SIZE = 100000;
 	    // Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
 	    // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
 	    // would generate too many unnecessary events.
@@ -270,21 +288,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * @param {HTMLElement} element
-	         * @param {String}      prop
-	         * @returns {String|Number}
-	         */
-	        function getComputedStyle(element, prop) {
-	            if (element.currentStyle) {
-	                return element.currentStyle[prop];
-	            } else if (window.getComputedStyle) {
-	                return window.getComputedStyle(element, null).getPropertyValue(prop);
-	            } else {
-	                return element.style[prop];
-	            }
-	        }
-
-	        /**
-	         * @param {HTMLElement} element
 	         * @param {Function}    resized
 	         */
 	        function attachResizeEvent(element, resized) {
@@ -304,7 +307,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            element.resizeSensor.innerHTML = '<span style="' + style + '"><span style="' + styleChild + '"></span></span>' + '<span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
 	            element.appendChild(element.resizeSensor);
 
-	            if (getComputedStyle(element, 'position') == 'static') {
+	            if ((0, _GetCurrentStyle2.default)(element, 'position') == 'static') {
 	                element.style.position = 'relative';
 	            }
 
@@ -313,12 +316,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var shrink = element.resizeSensor.childNodes[1];
 
 	            var reset = function reset() {
-	                expandChild.style.width = 100000 + 'px';
-	                expandChild.style.height = 100000 + 'px';
-	                expand.scrollLeft = 100000;
-	                expand.scrollTop = 100000;
-	                shrink.scrollLeft = 100000;
-	                shrink.scrollTop = 100000;
+	                expandChild.style.width = SENSOR_SIZE + 'px';
+	                expandChild.style.height = SENSOR_SIZE + 'px';
+	                expand.scrollLeft = SENSOR_SIZE;
+	                expand.scrollTop = SENSOR_SIZE;
+	                shrink.scrollLeft = SENSOR_SIZE;
+	                shrink.scrollTop = SENSOR_SIZE;
 	            };
 
 	            reset();
@@ -381,6 +384,78 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    return ResizeSensor;
+	});
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	(function (root, factory) {
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if ((typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object") {
+	        module.exports = factory();
+	    } else {
+	        root.getCurrentStyle = factory();
+	    }
+	})(undefined, function () {
+	    var curCSS;
+	    var core_pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source;
+	    var rnumnonpx = new RegExp("^(" + core_pnum + ")(?!px)[a-z%]+$", "i");
+	    if (window.getComputedStyle) {
+	        var rmargin = /^margin/;
+	        var getStyles = function getStyles(elem) {
+	            return window.getComputedStyle(elem, null);
+	        };
+	        curCSS = function curCSS(elem, name, _computed) {
+	            var width;
+	            var minWidth;
+	            var maxWidth;
+	            var computed = _computed || getStyles(elem);
+	            var ret = computed ? computed.getPropertyValue(name) || computed[name] : undefined;
+	            var style = elem.style;
+	            if (computed) {
+	                if (rnumnonpx.test(ret) && rmargin.test(name)) {
+	                    width = style.width;minWidth = style.minWidth;maxWidth = style.maxWidth;
+	                    style.minWidth = style.maxWidth = style.width = ret;ret = computed.width;
+	                    style.width = width;style.minWidth = minWidth;style.maxWidth = maxWidth;
+	                }
+	            }
+	            return ret;
+	        };
+	    } else if (document.documentElement.currentStyle) {
+	        var rposition = /^(top|right|bottom|left)$/;
+	        var getStyles = function getStyles(elem) {
+	            return elem.currentStyle;
+	        };
+	        curCSS = function curCSS(elem, name, _computed) {
+	            try {
+	                var left;
+	                var rs;
+	                var rsLeft;
+	                var computed = _computed || getStyles(elem);
+	                var ret = computed ? computed[name] : undefined;
+	                var style = elem.style;
+	                if (ret == null && style && style[name]) ret = style[name];
+	                if (rnumnonpx.test(ret) && !rposition.test(name)) {
+	                    left = style.left;
+	                    rs = elem.runtimeStyle;
+	                    rsLeft = rs && rs.left;
+	                    if (rsLeft) rs.left = elem.currentStyle.left;
+	                    style.left = name === "fontSize" ? "1em" : ret;
+	                    ret = style.pixelLeft + "px";
+	                    style.left = left;
+	                    if (rsLeft) rs.left = rsLeft;
+	                }
+	                return ret === "" ? "auto" : ret;
+	            } catch (e) {};
+	        };
+	    }
+	    return curCSS;
 	});
 
 /***/ }

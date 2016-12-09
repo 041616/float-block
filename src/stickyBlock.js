@@ -1,4 +1,5 @@
-import resizeSensor from './ResizeSensor.js';
+import resizeSensor from './ResizeSensor';
+import getCurrentStyle from './GetCurrentStyle';
 
 
 function guid() {
@@ -31,13 +32,13 @@ function getRelativeNode(node, classname) {
 }
 
 
-function getMaxTop(node, cloneNode, relativeNode) {
+function getMaxTop(node, cloneNode, relativeNode, paddingBottom, borderBottom) {
     const box = node.getBoundingClientRect();
     const cloneBox = cloneNode.getBoundingClientRect();
     const relativeBox = relativeNode.getBoundingClientRect();
-    if (relativeBox.bottom - cloneBox.top > box.bottom - box.top) {
-        return relativeBox.bottom - cloneBox.top - box.bottom + box.top;
-    }
+    if (relativeBox.bottom - cloneBox.top > box.bottom - box.top) return (
+        relativeBox.bottom - cloneBox.top - box.bottom + box.top - borderBottom - paddingBottom
+    );
     return 0;
 }
 
@@ -58,7 +59,7 @@ function setFixedBottomStyle(node, bottom, left, width) {
 
 
 function setRelativeTopStyle(node, top) {
-    node.style.cssText = `position: relative; top: ${top}px;`;
+    if (top > 0) node.style.cssText = `position: relative; top: ${top}px;`;
 }
 
 
@@ -76,18 +77,19 @@ function stickyBlock(node, opts) {
     const cloneNode = document.createElement('div');
     const list = relativeNode ? [node, cloneNode, bodyNode, relativeNode] : [node, cloneNode, bodyNode];
     let lastCloneTop = cloneNode.getBoundingClientRect().top;
+    let windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
+    let relativePaddingBottom = parseFloat(getCurrentStyle(relativeNode || bodyNode, 'padding-bottom')) || 0;
+    let relativeBorderBottom = parseFloat(getCurrentStyle(relativeNode || bodyNode, 'border-bottom-width')) || 0;
+    let maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode, relativePaddingBottom, relativeBorderBottom);
 
     setHeightStyle(cloneNode, 0);
     node.parentNode.insertBefore(cloneNode, node);
 
     const setPosition = () => {
-        const maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode);
         const nodeBox = node.getBoundingClientRect();
         const nodeHeight = nodeBox.bottom - nodeBox.top;
-        const windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
         const cloneBox = cloneNode.getBoundingClientRect();
         const absCloneTop = Math.abs(cloneBox.top);
-        const absNodeTop = Math.abs(nodeBox.top);
 
         if (cloneBox.top >= customTop || !maxTop) {
             node.removeAttribute('style');
@@ -98,7 +100,7 @@ function stickyBlock(node, opts) {
             if (cloneBox.top <= lastCloneTop) {
                 // downscroll
                 if (nodeBox.top <= customTop &&
-                    absNodeTop >= nodeHeight - windowHeight + customBottom &&
+                    Math.abs(nodeBox.top) >= nodeHeight - windowHeight + customBottom &&
                     absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent
                 ) {
                     setHeightStyle(cloneNode, nodeHeight);
@@ -134,8 +136,16 @@ function stickyBlock(node, opts) {
     };
 
     addEvent(window, 'scroll', setPosition);
-    addEvent(window, 'resize', setPosition);
-    resizeSensor(list, setPosition);
+    addEvent(window, 'resize', () => {
+        windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
+        setPosition();
+    });
+    resizeSensor(list, () => {
+        relativePaddingBottom = parseFloat(getCurrentStyle(relativeNode || bodyNode, 'padding-bottom')) || 0;
+        relativeBorderBottom = parseFloat(getCurrentStyle(relativeNode || bodyNode, 'border-bottom-width')) || 0;
+        maxTop = getMaxTop(node, cloneNode, relativeNode || bodyNode, relativePaddingBottom, relativeBorderBottom);
+        setPosition();
+    });
 }
 
 

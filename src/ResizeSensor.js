@@ -1,3 +1,5 @@
+import getCurrentStyle from './GetCurrentStyle';
+
 /**
  * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
  * directory of this distribution and at
@@ -13,6 +15,7 @@
     }
 }(this, function () {
     var TIMEOUT_DELAY = 20;
+    var SENSOR_SIZE = 100000;
     // Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
     // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
     // would generate too many unnecessary events.
@@ -74,21 +77,6 @@
 
         /**
          * @param {HTMLElement} element
-         * @param {String}      prop
-         * @returns {String|Number}
-         */
-        function getComputedStyle(element, prop) {
-            if (element.currentStyle) {
-                return element.currentStyle[prop];
-            } else if (window.getComputedStyle) {
-                return window.getComputedStyle(element, null).getPropertyValue(prop);
-            } else {
-                return element.style[prop];
-            }
-        }
-
-        /**
-         * @param {HTMLElement} element
          * @param {Function}    resized
          */
         function attachResizeEvent(element, resized) {
@@ -110,7 +98,7 @@
                 '<span style="' + style + '"><span style="' + styleChild + ' width: 200%; height: 200%"></span></span>';
             element.appendChild(element.resizeSensor);
 
-            if (getComputedStyle(element, 'position') == 'static') {
+            if (getCurrentStyle(element, 'position') == 'static') {
                 element.style.position = 'relative';
             }
 
@@ -119,12 +107,12 @@
             var shrink = element.resizeSensor.childNodes[1];
 
             var reset = function() {
-                expandChild.style.width = 100000 + 'px';
-                expandChild.style.height = 100000 + 'px';
-                expand.scrollLeft = 100000;
-                expand.scrollTop = 100000;
-                shrink.scrollLeft = 100000;
-                shrink.scrollTop = 100000;
+                expandChild.style.width = SENSOR_SIZE + 'px';
+                expandChild.style.height = SENSOR_SIZE + 'px';
+                expand.scrollLeft = SENSOR_SIZE;
+                expand.scrollTop = SENSOR_SIZE;
+                shrink.scrollLeft = SENSOR_SIZE;
+                shrink.scrollTop = SENSOR_SIZE;
             };
 
             reset();
