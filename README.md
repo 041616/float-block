@@ -10,7 +10,7 @@ To use it, block must corresponds CSS rules:
  - `width: auto;`
  - `float: none;`
 
-##Options
+## Options
 
 Options list:
 
@@ -53,11 +53,11 @@ Options list:
     </tr>
 </table>
 
-##Browser Support
+## Browser Support
 
 All modern browsers and IE9+
 
-##Examples
+## Examples
 
 [Demo1](https://041616.github.io/float-block/example/demo01.html) - without any parameters.
 
