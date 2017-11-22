@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -64,25 +64,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _GetCurrentStyle2 = _interopRequireDefault(_GetCurrentStyle);
 
+	var _utils = __webpack_require__(3);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function guid() {
-	    var s4 = function s4() {
-	        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	    };
-	    return 'id-' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-	}
-
 	function setID(node) {
-	    if (!node.id) node.id = guid();
+	    if (!node.id) node.id = (0, _utils.guid)();
 	}
 
-	function addEvent(node, name, callback) {
-	    if (node.attachEvent) {
-	        node.attachEvent('on' + name, callback);
-	    } else {
-	        node.addEventListener(name, callback);
+	function proceedCSSRule(rule) {
+	    for (var property in _utils.EXCLUDED_CSS_PROPERTIES_MAP) {
+	        if (!_utils.EXCLUDED_CSS_PROPERTIES_MAP.hasOwnProperty(property)) continue;
+	        if (_utils.EXCLUDED_CSS_PROPERTIES_MAP[property].test(rule)) return false;
 	    }
+	    return true;
+	}
+
+	function parsedCSSText(cssText) {
+	    if (!cssText) return '';
+	    var ruleList = cssText.split(';');
+	    var parsedRuleList = ruleList.filter(proceedCSSRule);
+	    return parsedRuleList.join(';') + ';';
 	}
 
 	function getRelativeNode(node, classname) {
@@ -106,16 +108,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    cloneNode.style.cssText = 'height: ' + height + 'px;';
 	}
 
-	function setFixedTopStyle(node, top, left, width) {
-	    node.style.cssText = 'position: fixed; top: ' + top + 'px; left: ' + left + 'px; width: ' + width + 'px; box-sizing: border-box;';
+	function setFixedTopStyle(node, top, left, width, cssText) {
+	    node.style.cssText = cssText + ' position: fixed; top: ' + top + 'px; left: ' + left + 'px; width: ' + width + 'px; box-sizing: border-box;';
 	}
 
-	function setFixedBottomStyle(node, bottom, left, width) {
-	    node.style.cssText = 'position: fixed; bottom: ' + bottom + 'px; left: ' + left + 'px; width: ' + width + 'px; box-sizing: border-box;';
+	function setFixedBottomStyle(node, bottom, left, width, cssText) {
+	    node.style.cssText = cssText + ' position: fixed; bottom: ' + bottom + 'px; left: ' + left + 'px; width: ' + width + 'px; box-sizing: border-box;';
 	}
 
-	function setRelativeTopStyle(node, top) {
-	    if (top > 0) node.style.cssText = 'position: relative; top: ' + top + 'px;';
+	function setRelativeTopStyle(node, top, cssText) {
+	    if (top > 0) node.style.cssText = cssText + ' position: relative; top: ' + top + 'px;';
 	}
 
 	function stickyBlock(node, opts) {
@@ -125,6 +127,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var customBottom = opts.bottom || 0;
 	    var customIndent = opts.indent || 0;
 	    var className = node.className || '';
+	    var cssText = node.style.cssText;
+	    var parsedCssText = parsedCSSText(cssText);
 	    var classNameActive = opts.classActive ? (className + ' ' + opts.classActive).trim() : className;
 	    var relativeNode = getRelativeNode(node, opts.relative);
 	    var rootNode = document.documentElement;
@@ -147,7 +151,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var absCloneTop = Math.abs(cloneBox.top);
 
 	        if (cloneBox.top >= customTop || !maxTop) {
-	            node.removeAttribute('style');
+	            if (cssText) {
+	                node.style.cssText = cssText;
+	            } else {
+	                node.removeAttribute('style');
+	            }
 	            node.className = className;
 	            setHeightStyle(cloneNode, 0);
 	        } else if (nodeHeight > windowHeight) {
@@ -156,22 +164,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // downscroll
 	                if (nodeBox.top <= customTop && Math.abs(nodeBox.top) >= nodeHeight - windowHeight + customBottom && absCloneTop < maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
 	                    setHeightStyle(cloneNode, nodeHeight);
-	                    setFixedBottomStyle(node, customBottom, cloneBox.left, cloneBox.right - cloneBox.left);
+	                    setFixedBottomStyle(node, customBottom, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
 	                } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
 	                    setHeightStyle(cloneNode, 0);
-	                    setRelativeTopStyle(node, maxTop - customIndent);
+	                    setRelativeTopStyle(node, maxTop - customIndent, parsedCssText);
 	                } else {
 	                    setHeightStyle(cloneNode, 0);
-	                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top));
+	                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top), parsedCssText);
 	                }
 	            } else {
 	                // upscroll
 	                if (nodeBox.top < customTop) {
 	                    setHeightStyle(cloneNode, 0);
-	                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top));
+	                    setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top), parsedCssText);
 	                } else if (absCloneTop < maxTop + nodeHeight - windowHeight - customTop) {
 	                    setHeightStyle(cloneNode, nodeHeight);
-	                    setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
+	                    setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
 	                }
 	            }
 	            lastCloneTop = cloneBox.top;
@@ -179,16 +187,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.className = classNameActive;
 	            if (absCloneTop < maxTop - customTop - customIndent) {
 	                setHeightStyle(cloneNode, nodeHeight);
-	                setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left);
+	                setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
 	            } else {
 	                setHeightStyle(cloneNode, 0);
-	                setRelativeTopStyle(node, maxTop - customIndent);
+	                setRelativeTopStyle(node, maxTop - customIndent, parsedCssText);
 	            }
 	        }
 	    };
 
-	    addEvent(window, 'scroll', setPosition);
-	    addEvent(window, 'resize', function () {
+	    (0, _utils.addEvent)(window, 'scroll', setPosition);
+	    (0, _utils.addEvent)(window, 'resize', function () {
 	        windowHeight = window.innerHeight || rootNode.clientHeight || bodyNode.clientHeight;
 	        setPosition();
 	    });
@@ -202,9 +210,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = stickyBlock;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
@@ -386,9 +394,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ResizeSensor;
 	});
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
@@ -458,7 +466,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return curCSS;
 	});
 
-/***/ }
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.guid = guid;
+	exports.addEvent = addEvent;
+	var EXCLUDED_CSS_PROPERTIES_MAP = exports.EXCLUDED_CSS_PROPERTIES_MAP = {
+	    'position': /([^-]position|^position)/,
+	    'top': /([^-]top|^top)/,
+	    'left': /([^-]left|^left)/,
+	    'bottom': /([^-]bottom|^bottom)/,
+	    'width': /([^-]width|^width)/,
+	    'box-sizing': /box-sizing/
+	};
+
+	function guid() {
+	    var s4 = function s4() {
+	        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	    };
+	    return 'id-' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+	}
+
+	function addEvent(node, name, callback) {
+	    if (node.attachEvent) {
+	        node.attachEvent('on' + name, callback);
+	    } else {
+	        node.addEventListener(name, callback);
+	    }
+	}
+
+/***/ })
 /******/ ])
 });
 ;
