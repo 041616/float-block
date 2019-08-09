@@ -76,6 +76,7 @@ function stickyBlock(node, opts) {
     const cssText = node.style.cssText;
     const parsedCssText = parsedCSSText(cssText);
     const classNameActive = opts.classActive ? `${className} ${opts.classActive}`.trim() : className;
+    const classNameActiveSticky = opts.classSticky ? `${classNameActive} ${opts.classSticky}`.trim() : classNameActive;
     const relativeNode = getRelativeNode(node, opts.relative);
     const rootNode = document.documentElement;
     const bodyNode = document.body;
@@ -96,6 +97,7 @@ function stickyBlock(node, opts) {
         const cloneBox = cloneNode.getBoundingClientRect();
         const absCloneTop = Math.abs(cloneBox.top);
 
+        // sticky block become static
         if (cloneBox.top >= customTop || !maxTop) {
             if (cssText) {
                 node.style.cssText = cssText;
@@ -104,8 +106,8 @@ function stickyBlock(node, opts) {
             }
             node.className = className;
             setHeightStyle(cloneNode, 0);
+        // sticky block height bigger than container height
         } else if (nodeHeight > windowHeight) {
-            node.className = classNameActive;
             if (cloneBox.top <= lastCloneTop) {
                 // downscroll
                 if (nodeBox.top <= customTop &&
@@ -114,33 +116,38 @@ function stickyBlock(node, opts) {
                 ) {
                     setHeightStyle(cloneNode, nodeHeight);
                     setFixedBottomStyle(node, customBottom, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
+                    node.className = classNameActiveSticky;
                 } else if (absCloneTop >= maxTop + nodeHeight - windowHeight + customBottom - customIndent) {
                     setHeightStyle(cloneNode, 0);
                     setRelativeTopStyle(node, maxTop - customIndent, parsedCssText);
+                    node.className = classNameActive;
                 } else {
                     setHeightStyle(cloneNode, 0);
                     setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top), parsedCssText);
+                    node.className = classNameActive;
                 }
             } else {
                 // upscroll
                 if (nodeBox.top < customTop) {
                     setHeightStyle(cloneNode, 0);
                     setRelativeTopStyle(node, Math.abs(cloneBox.top - nodeBox.top), parsedCssText);
+                    node.className = classNameActive;
                 } else if (absCloneTop < maxTop + nodeHeight - windowHeight - customTop) {
+                    node.className = classNameActiveSticky;
                     setHeightStyle(cloneNode, nodeHeight);
                     setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
                 }
             }
             lastCloneTop = cloneBox.top;
+        // sticky block height smaller than container height
+        } else if (absCloneTop < maxTop - customTop - customIndent) {
+            node.className = classNameActiveSticky;
+            setHeightStyle(cloneNode, nodeHeight);
+            setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
         } else {
             node.className = classNameActive;
-            if (absCloneTop < maxTop - customTop - customIndent) {
-                setHeightStyle(cloneNode, nodeHeight);
-                setFixedTopStyle(node, customTop, cloneBox.left, cloneBox.right - cloneBox.left, parsedCssText);
-            } else {
-                setHeightStyle(cloneNode, 0);
-                setRelativeTopStyle(node, maxTop - customIndent, parsedCssText);
-            }
+            setHeightStyle(cloneNode, 0);
+            setRelativeTopStyle(node, maxTop - customIndent, parsedCssText);
         }
     };
 
